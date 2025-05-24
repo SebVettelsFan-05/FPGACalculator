@@ -118,5 +118,15 @@ endmodule
 module MUX4 (
 	input	[10:0] d0,
 	input	[10:0] d1,
-	input	[10:0]
-)
+	input	[10:0] d2,
+	input	[10:0] d3,
+	input	[1:0]  s,
+	output	[10:0] q);
+
+	wire p0, p1;
+
+	MUX2 low_first (d0, d2, s[1], p0);
+	MUX2 high_first (d1, d3, s[0], p1);
+	MUX2 final (p0, p1, s[0], q);
+	
+endmodule
