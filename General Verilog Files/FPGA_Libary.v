@@ -89,19 +89,34 @@ endmodule
 
 /*
 Tristate buffers (11 bit buses)
+*/
 
-/*
-MUX gates 
+module TristateBuffer (
+	input 	[10:0] a,
+	input          s,
+	output  [10:0] q);
+	assign q = s ? a : 4'bz;
+endmodule
+
+/*MUX gates 
 Up to MUX4
 */
 
+//MUX2
 module MUX2 (
 	input	[10:0] d0,
 	input 	[10:0] d1,
 	input		   s,
 	output	[10:0] q);
 
-
-	
+	TristateBuffer zero_en (d0, ~s, q);
+	TristateBuffer one_en (d1, s, q);
 
 endmodule 
+
+//MUX4
+module MUX4 (
+	input	[10:0] d0,
+	input	[10:0] d1,
+	input	[10:0]
+)
