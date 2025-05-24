@@ -23,18 +23,22 @@ Up to AND4
 */
 
 //AND2
-module AND2 (input 	[10:0] a, 
-			 input	[10:0] b,	
-			 output [10:0] q);
+module AND2 (
+	input 	[10:0] a, 
+	input	[10:0] b,	
+	output [10:0] q
+	);
 			 
 	assign q = a & b;
 endmodule
 
 //AND3
-module AND3 (input 	[10:0] a,
-			 input	[10:0] b,
-			 input	[10:0] c,
-			 output [10:0] q);
+module AND3 (
+	input 	[10:0] a,
+	input	[10:0] b,
+	input	[10:0] c,
+	output  [10:0] q);
+
 	wire p [10:0];
 	AND2 inter (a, b, p);
 	AND2 final_result (c, p, q);
@@ -42,11 +46,13 @@ module AND3 (input 	[10:0] a,
 endmodule
 	
 //AND4
-module AND4 (input 	[10:0] a,
-			 input 	[10:0] b,
-			 input 	[10:0] c,
-			 input  [10:0] d,
-			 output [10:0] q);
+module AND4 (
+	input 	[10:0] a,
+	input 	[10:0] b,
+	input 	[10:0] c,
+	input   [10:0] d,
+	output  [10:0] q);
+
 	wire p [10:0];
 	AND3 inter (a, b, c, p);
 	AND2 final_result (p, d, q);
@@ -58,12 +64,44 @@ Up to OR4
 */
 
 //OR3
-module OR3 (input  [10:0] a, 
-			input  [10:0] b,
-			input  [10:0] c,	
-			output [10:0] q);
+module OR3 (
+	input  [10:0] a, 
+	input  [10:0] b,
+	input  [10:0] c,	
+	output [10:0] q);
 	wire p [10:0];		 
 	assign q = a ^ b;
 endmodule
 
+//OR4
+module OR4 (
+	input 	[10:0] a,
+	input 	[10:0] b,
+	input 	[10:0] c,
+	input   [10:0] d,
+	output  [10:0] q);
 
+
+	wire p [10:0];
+	OR3 inter (a, b, c, p);
+	assign q = p ^ d;
+endmodule
+
+/*
+Tristate buffers (11 bit buses)
+
+/*
+MUX gates 
+Up to MUX4
+*/
+
+module MUX2 (
+	input	[10:0] d0,
+	input 	[10:0] d1,
+	input		   s,
+	output	[10:0] q);
+
+
+	
+
+endmodule 
