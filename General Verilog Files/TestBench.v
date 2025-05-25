@@ -1,1 +1,53 @@
-module 
+module testbench();
+    reg     clk, reset;
+    reg     a, b, c, yexpected; //inputs a,b,c
+    wire    y; //output
+
+    reg[31:0] vectornum, errors;
+    reg[3:0]  testvectors [10000:0]; 
+
+    //device under test
+    //function dut (a,b,c,y);
+
+    //clock generation
+    always
+        begin
+            clk = 1; #5; clk = 0; #5;
+        end
+
+    //load vectors, pulse reset
+    initial
+        begin
+            $readmemb("ex.tv", testvectors); //replace ex.tv with file directory
+            vectornum = 0;
+            errors = 0;
+            reset = 1; // turn reset on
+            #30; //wait
+            reset = 0; // reset off and ready to start
+        end
+    
+    //apply test vectors on rising edge of the clk
+    always @(posedge clk)
+        begin
+        #1; //wait
+        {a, b, c, yexpected} = testvectors[vectornum]; //test the inputs and y_expected, put them in variables
+
+        end
+
+    always @(negedge clk)
+        if(~reset) begin
+            if (y !== yexpected) begin
+                $display("Error! For inputs %b", {a, b, c}); //Change local variables
+                $display("Expected: %b, Actual: %b ", yexpected, y);
+                errors = errors + 1;
+            end
+            vectornum = vectornum + 1;
+            if(testvectors[vectornum] === 4'bx) begin
+                $display ("%d tests completed with %d errors",vectornum,errors);
+                $finish;
+            end
+        end
+
+
+
+endmodule

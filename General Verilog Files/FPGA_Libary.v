@@ -91,11 +91,12 @@ endmodule
 Tristate buffers (11 bit buses)
 */
 
-module TristateBuffer (
-	input 	[10:0] a,
+module TristateBuffer 
+#(parameter width = 11)
+(	input 	[width-1:0] a,
 	input          s,
-	output  [10:0] q);
-	assign q = s ? a : 4'bz;
+	output  [width-1:0] q);
+	assign q = s ? a : 11'bz;
 endmodule
 
 /*MUX gates 
@@ -103,11 +104,12 @@ Up to MUX4
 */
 
 //MUX2
-module MUX2 (
-	input	[10:0] d0,
-	input 	[10:0] d1,
+module MUX2 
+(#(parameter width = 11))
+(	input	[width-1:0] d0,
+	input 	[width-1:0] d1,
 	input		   s,
-	output	[10:0] q);
+	output	[width-1:0] q);
 
 	TristateBuffer zero_en (d0, ~s, q);
 	TristateBuffer one_en (d1, s, q);
@@ -115,13 +117,14 @@ module MUX2 (
 endmodule 
 
 //MUX4
-module MUX4 (
-	input	[10:0] d0,
-	input	[10:0] d1,
-	input	[10:0] d2,
-	input	[10:0] d3,
+module MUX4 
+#(parameter width = 11)
+(	input	[width-1:0] d0,
+	input	[width-1:0] d1,
+	input	[width-1:0] d2,
+	input	[width-1:0] d3,
 	input	[1:0]  s,
-	output	[10:0] q);
+	output	[width-1:0] q);
 
 	wire p0, p1;
 
