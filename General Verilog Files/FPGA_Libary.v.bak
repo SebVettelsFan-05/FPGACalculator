@@ -17,20 +17,10 @@ Coding Conventions for this library:
 */
 
 
-/*
-AND gates
-Up to AND4
-*/
 
-//AND2
-module AND2 (
-	input 	[10:0] a, 
-	input	[10:0] b,	
-	output [10:0] q
-	);
-			 
-	assign q = a & b;
-endmodule
+//AND gates
+//Up to AND4
+
 
 //AND3
 module AND3 (
@@ -38,13 +28,13 @@ module AND3 (
 	input	[10:0] b,
 	input	[10:0] c,
 	output  [10:0] q);
-
-	wire p [10:0];
-	AND2 inter (a, b, p);
-	AND2 final_result (c, p, q);
+	wire [10:0] p;
+	assign p = a & b;
+	assign q = p & c;
 	
 endmodule
-	
+
+
 //AND4
 module AND4 (
 	input 	[10:0] a,
@@ -52,16 +42,15 @@ module AND4 (
 	input 	[10:0] c,
 	input   [10:0] d,
 	output  [10:0] q);
-
-	wire p [10:0];
+	wire [10:0] p;
 	AND3 inter (a, b, c, p);
-	AND2 final_result (p, d, q);
+	assign q = d & p;
 endmodule
 
-/*
-OR gates
-Up to OR4
-*/
+
+//OR gates
+//Up to OR4
+
 
 //OR3
 module OR3 (
@@ -69,7 +58,7 @@ module OR3 (
 	input  [10:0] b,
 	input  [10:0] c,	
 	output [10:0] q);
-	wire p [10:0];		 
+	wire [10:0] p;		 
 	assign q = a ^ b;
 endmodule
 
@@ -82,14 +71,14 @@ module OR4 (
 	output  [10:0] q);
 
 
-	wire p [10:0];
+	wire [10:0] p;
 	OR3 inter (a, b, c, p);
 	assign q = p ^ d;
 endmodule
 
-/*
-Tristate buffers (11 bit buses)
-*/
+
+//Tristate buffers (11 bit buses)
+
 
 module TristateBuffer 
 #(parameter width = 11)
@@ -99,16 +88,16 @@ module TristateBuffer
 	assign q = s ? a : 11'bz;
 endmodule
 
-/*MUX gates 
-Up to MUX4
-*/
+//MUX gates 
+//Up to MUX4
+
 
 //MUX2
 module MUX2 
-(#(parameter width = 11))
+#(parameter width = 11)
 (	input	[width-1:0] d0,
 	input 	[width-1:0] d1,
-	input		   s,
+	input		   		s,
 	output	[width-1:0] q);
 
 	TristateBuffer zero_en (d0, ~s, q);
@@ -133,3 +122,4 @@ module MUX4
 	MUX2 final (p0, p1, s[0], q);
 	
 endmodule
+*/

@@ -1,6 +1,6 @@
 module testbench();
     reg     clk, reset;
-    reg [11:0] a, b, c, d, yexpected; //inputs a,b,c
+    reg     a, b, c, d, yexpected; //inputs a,b,c
     wire    y; //output
 
     reg[31:0] vectornum, errors;
