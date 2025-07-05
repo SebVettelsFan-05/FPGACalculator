@@ -72,9 +72,6 @@ module button_layer_sev_seg
 (
     input clk,
     input button_pressed,
-    input [3:0] numerical_representation,
-
-    output [3:0] o_num_rep,
     output o_DV_Final
 );
 
@@ -83,17 +80,14 @@ button_press Instance (clk, button_pressed, button_filtered);
 
 reg o_DV = 1'b0;
 reg last_state = 1'b0;
-reg [3:0] output_state = 4'b0000;
 always @(posedge clk)
     begin
         o_DV = 1'b0;
         last_state <= button_filtered;
         if(last_state !== button_filtered)
             begin
-                output_state <= numerical_representation;
                 o_DV = 1'b1;
             end
     end
-assign o_num_rep = output_state;
 assign o_DV_Final = o_DV;
 endmodule

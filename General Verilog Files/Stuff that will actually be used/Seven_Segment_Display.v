@@ -28,7 +28,7 @@ always @(posedge clk)
             4'b1100 : sev_seg_inter <= 7'h4E;
             4'b1101 : sev_seg_inter <= 7'h3D;
             4'b1110 : sev_seg_inter <= 7'h4F;
-            4'b1111 : sev_seg_inter <= 7'h47;
+            4'b1111 : sev_seg_inter <= 7'h00;
         endcase
 
     end
