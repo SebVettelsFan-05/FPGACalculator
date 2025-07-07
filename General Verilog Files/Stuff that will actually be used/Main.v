@@ -38,20 +38,23 @@ module Main
     output reg o_LED_4
 );
 
+//set number of output ready flags and how many number buttons system have
 wire flag_ver [12:0];
-parameter num_of_buttons = 3;
+parameter num_of_buttons = 4;
 
+//button initiation
 button_layer_sev_seg button_0 (i_Clk, i_Switch_1, flag_ver[0]);
-button_layer_sev_seg button_1 (i_Clk, i_Switch_2, flag_ver[1]);
-button_layer_sev_seg button_2 (i_Clk, i_Switch_3, flag_ver[2]);
-
-
+button_layer_sev_seg button_1 (i_Clk, io_PMOD_1, flag_ver[1]);
+button_layer_sev_seg button_2 (i_Clk, io_PMOD_2, flag_ver[2]);
+button_layer_sev_seg button_3 (i_Clk, io_PMOD_3, flag_ver[3]);
+//equals button
 button_layer_sev_seg equals_op (i_Clk, i_Switch_4, equals_flag);
+//operation button init
+button_layer_sev_seg add_button (i_Clk, i_Switch_2, flag_add_op);
+//reset button init
+button_layer_sev_seg reset_button (i_Clk, i_Switch_3, reset_flag);
 
-button_layer_sev_seg add_button (i_Clk, io_PMOD_2, flag_add_op);
-
-button_layer_sev_seg reset_button (i_Clk, io_PMOD_1, reset_flag);
-
+//parameters for state machine
 parameter start =                3'b000;
 parameter first_num_first_dig =  3'b001;
 parameter first_num_sec_dig =    3'b010;
@@ -60,21 +63,36 @@ parameter sec_num_first_dig =    3'b100;
 parameter sec_num_sec_dig =      3'b101;
 parameter execute =              3'b110;
 parameter reset =                3'b111;
-
-parameter all_values = 16'b0011_0010_0001_0000;
-
+//lots of numbers
+parameter all_values = 40'h9876543210;
 reg [2:0] current_case = reset;
+//reg, wire pair for inputs
 reg [18:0] input_buffer = 19'h00000;
 wire [18:0] inputs;
-
+//stuff for lights
 reg [3:0] lights_reg = 4'h00;
 wire [3:0] lights;
-
+//stuff for display
 reg [7:0] current_seven_seg = 8'hff;
 wire [7:0] output_seven_seg;
 wire [7:0] seven_segment_1;
 wire [7:0] seven_segment_2;
 
+//seperation of numbers for processing
+wire [11:0] num_prior_one;
+wire [11:0] num_prior_two;
+reg r_en_bbc1 = 0;
+wire en_bbc_1;
+reg r_en_bbc2 = 0;
+wire en_bbc_2;
+wire o_dvbbc_r1;
+wire o_dvbbc_r2;
+
+//init bcd_to_binary
+bcd_to_bin_conversion first_num(i_Clk, inputs[18:11], en_bbc_1, num_prior_one, o_dvbbc_r1);
+bcd_to_bin_conversion second_num(i_Clk, inputs [7:0], en_bbc_2, num_prior_two, o_dvbbc_r2);
+
+//for the for loops
 integer numpad;
 
 always @(posedge i_Clk)
@@ -90,12 +108,6 @@ always @(posedge i_Clk)
                                     current_seven_seg[3:0] <= all_values [(3+4*numpad) -: 4];
                                     current_case <= first_num_first_dig;
                                 end
-                        end
-                    if(flag_add_op)
-                        begin
-                            input_buffer[10:8] <= 3'b001;
-                            current_case <= operation;
-                            lights_reg <= 4'b0001;
                         end
                     if(reset_flag)
                         current_case <= reset; 
@@ -180,10 +192,13 @@ always @(posedge i_Clk)
                 end
             execute:
                 begin
-                    current_seven_seg[7:0] <= 8'h89;
+                    //conversion to binary
+                    r_en_bbc1 <= 1;
+                    r_en_bbc2 <= 1;
+                    if(o_dvbbc_r1)
+                        current_seven_seg <= num_prior_one[7:0];
                     if(reset_flag)
-                        current_case <= reset;
-                       
+                        current_case <= reset;    
                 end
             reset:
                 begin
@@ -191,14 +206,18 @@ always @(posedge i_Clk)
                     current_seven_seg[7:0] <= 8'hff;
                     current_case <= start;
                     lights_reg <= 4'b0000;
+                    r_en_bbc1 <= 0;
+                    r_en_bbc2 <=0;
                 end
         endcase
-
-
     end
 
 assign output_seven_seg = current_seven_seg;
 assign lights = lights_reg;
+assign inputs = input_buffer;
+assign en_bbc_1 = r_en_bbc1;
+assign en_bbc_2 = r_en_bbc2;
+
 
 binary_to_7segment second_screen (i_Clk, current_seven_seg[3:0] ,seven_segment_2);
 binary_to_7segment first_screen (i_Clk, current_seven_seg[7:4] ,seven_segment_1);
