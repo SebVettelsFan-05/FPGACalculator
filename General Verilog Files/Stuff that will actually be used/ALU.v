@@ -48,6 +48,7 @@ MUX2 mux_select (b, negative_val, s, a_mux);
 y = a + a_mux;
 
 endmodule
+
 /*module adder
 (
     input   [11:0] a,

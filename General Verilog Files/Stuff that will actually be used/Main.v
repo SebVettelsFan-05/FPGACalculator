@@ -79,14 +79,18 @@ wire [7:0] seven_segment_1;
 wire [7:0] seven_segment_2;
 
 //seperation of numbers for processing
-wire [11:0] num_prior_one;
-wire [11:0] num_prior_two;
+wire [8:0] num_prior_one;
+wire [8:0] num_prior_two;
 reg r_en_bbc1 = 0;
 wire en_bbc_1;
 reg r_en_bbc2 = 0;
 wire en_bbc_2;
 wire o_dvbbc_r1;
 wire o_dvbbc_r2;
+
+//Final results to add
+reg [7:0] result_first  = 8'h00;
+reg [7:0] result_second  = 8'h00;
 
 //init bcd_to_binary
 bcd_to_bin_conversion first_num(i_Clk, inputs[18:11], en_bbc_1, num_prior_one, o_dvbbc_r1);
@@ -196,7 +200,10 @@ always @(posedge i_Clk)
                     r_en_bbc1 <= 1;
                     r_en_bbc2 <= 1;
                     if(o_dvbbc_r1)
-                        current_seven_seg <= num_prior_one[7:0];
+                        result_first[8:0] <= num_prior_one[8:0];
+                    if(o_dvbbc_r2)
+                        result_second[8:0] <= num_prior_two[8:0];
+
                     if(reset_flag)
                         current_case <= reset;    
                 end
@@ -208,6 +215,8 @@ always @(posedge i_Clk)
                     lights_reg <= 4'b0000;
                     r_en_bbc1 <= 0;
                     r_en_bbc2 <=0;
+                    result_first <= 12'h000;
+                    result_second <= 12'h000;
                 end
         endcase
     end
