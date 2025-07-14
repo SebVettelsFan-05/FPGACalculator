@@ -79,8 +79,8 @@ wire [7:0] seven_segment_1;
 wire [7:0] seven_segment_2;
 
 //seperation of numbers for processing
-wire [8:0] num_prior_one;
-wire [8:0] num_prior_two;
+wire [7:0] num_prior_one;
+wire [7:0] num_prior_two;
 reg r_en_bbc1 = 0;
 wire en_bbc_1;
 reg r_en_bbc2 = 0;
@@ -92,9 +92,18 @@ wire o_dvbbc_r2;
 reg [7:0] result_first  = 8'h00;
 reg [7:0] result_second  = 8'h00;
 
+wire [7:0] w_result_f;
+
 //init bcd_to_binary
 bcd_to_bin_conversion first_num(i_Clk, inputs[18:11], en_bbc_1, num_prior_one, o_dvbbc_r1);
 bcd_to_bin_conversion second_num(i_Clk, inputs [7:0], en_bbc_2, num_prior_two, o_dvbbc_r2);
+
+//testing double dabble
+wire[7:0] output_dd;
+reg r_en_dd = 0;
+wire en_dd;
+wire o_dvdd;
+double_dabble test(i_Clk, w_result_f, en_dd, output_dd, o_dvdd);
 
 //for the for loops
 integer numpad;
@@ -200,10 +209,14 @@ always @(posedge i_Clk)
                     r_en_bbc1 <= 1;
                     r_en_bbc2 <= 1;
                     if(o_dvbbc_r1)
-                        result_first[8:0] <= num_prior_one[8:0];
+                        begin
+                            result_first[7:0] <= num_prior_one[7:0];
+                            r_en_dd <= 1;
+                        end
                     if(o_dvbbc_r2)
-                        result_second[8:0] <= num_prior_two[8:0];
-
+                        result_second[7:0] <= num_prior_two[7:0];
+                    if(o_dvdd)
+                        current_seven_seg[7:0] <= output_dd;
                     if(reset_flag)
                         current_case <= reset;    
                 end
@@ -226,6 +239,9 @@ assign lights = lights_reg;
 assign inputs = input_buffer;
 assign en_bbc_1 = r_en_bbc1;
 assign en_bbc_2 = r_en_bbc2;
+
+assign w_result_f = result_first;
+assign en_dd = r_en_dd;
 
 
 binary_to_7segment second_screen (i_Clk, current_seven_seg[3:0] ,seven_segment_2);

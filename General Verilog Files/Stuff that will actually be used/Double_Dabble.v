@@ -66,15 +66,15 @@ endmodule
 
 module double_dabble
 (
-    input [7:0] i_Binary,
     input clk,
+    input [7:0] i_Binary,
     input start,
 
     output [7:0] BCD_rep,
     output o_DV
 );
 
-parameter start = 3'b000;
+parameter s_start = 3'b000;
 parameter shift = 3'b001;
 parameter check = 3'b010;
 parameter add_3 = 3'b011;
@@ -86,8 +86,82 @@ reg r_o_DV = 0;
 reg [19:0] buffer_size = 20'h00000;
 reg [3:0] shift_count = 4'd0;
 
-reg [3:0] upper_buf = 4'b0000;
-reg [3:0] lower_buf = 4'b0000;
+reg flag_upper = 0;
+reg flag_lower = 0;
+
+always @(posedge clk)
+    begin
+        case (case_machine)
+            s_start:
+                begin
+                    r_o_DV <= 0;
+                    buffer_size <= 20'h00000;
+                    shift_count <= 4'd0;
+                    flag_upper <= 0;
+                    flag_lower <= 0;
+                    if(start)
+                        begin
+                            buffer_size[7:0] <= i_Binary[7:0];
+                            case_machine <= shift;
+                        end
+                end
+            check:
+                begin
+                    flag_upper <= (buffer_size[15:12] >= 5);
+                    flag_lower <= (buffer_size[11:8] >= 5);
+                    case_machine <= add_3;
+                end
+            add_3:
+                begin
+                    if(flag_upper)
+                        buffer_size[15:12] <= buffer_size[15:12] + 3;
+                    if(flag_lower)
+                        buffer_size[11:8] <= buffer_size[11:8] + 3;
+                    case_machine <= shift;
+                end
+            shift:
+                begin
+                    buffer_size <= buffer_size << 1;
+                    shift_count <= shift_count + 1;
+                    if(shift_count == 7)
+                        case_machine <= finished;
+                    else
+                        case_machine <= check;
+                end
+            finished: 
+                begin
+                    r_o_DV <= 1;
+                    case_machine <= s_start;
+                end
+        endcase 
+
+    end
+
+assign BCD_rep = buffer_size[15:8];
+assign o_DV = r_o_DV;
+endmodule 
+
+/*module double_dabble
+(
+    input clk,
+    input [7:0] i_Binary,
+    input start,
+
+    output [7:0] BCD_rep,
+    output o_DV
+);
+
+parameter s_start = 3'b000;
+parameter shift = 3'b001;
+parameter check = 3'b010;
+parameter add_3 = 3'b011;
+parameter finished = 3'b100;
+
+reg [2:0] case_machine = 3'b000;
+reg r_o_DV = 0;
+
+reg [19:0] buffer_size = 20'h00000;
+reg [3:0] shift_count = 4'd0;
 
 reg flag_upper = 0;
 reg flag_lower = 0;
@@ -95,12 +169,8 @@ reg flag_lower = 0;
 always @(posedge clk)
     begin
         case (case_machine)
-            start:
+            s_start:
                 begin
-                    buffer_size <= 0'h00000;
-                    r_o_DV <= 0;
-                    upper_buf <= 4'd0;
-                    lower_buf <= 4'd0;
                     shift_count <= 4'd0;
                     flag_upper <= 0;
                     flag_lower <= 0;
@@ -122,20 +192,37 @@ always @(posedge clk)
                     if(shift_count == 8)
                         case_machine <= finished;
                     else
-                        if()
-
+                        begin
+                            flag_upper <= (buffer_size[15:12] >= 4'b0101);
+                            flag_lower <= (buffer_size[11:8] >= 4'b0101);
+                            case_machine <= add_3;
+                        end
                 end
             add_3:
                 begin
+                    if(flag_upper)
+                        begin
+                            buffer_size[15:12] <= buffer_size[15:12] + 4'b0011;
+                            flag_upper <= 0;
+                        end
+                    if(flag_lower)
+                        begin
+                            buffer_size[11:8] <= buffer_size[11:8] + 4'b0011;
+                            flag_upper <= 0;
+                        end
+                    case_machine <= shift;
                 end
             finished: 
                 begin
+                    r_o_DV <= 1;
+                    case_machine <= s_start;
                 end
         endcase 
 
     end
 
-assign BCD_rep = buffer_size[13:8];
+assign BCD_rep = buffer_size[15:8];
+assign o_DV = r_o_DV;
 
 
 
