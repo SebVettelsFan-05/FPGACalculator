@@ -171,6 +171,7 @@ always @(posedge clk)
         case (case_machine)
             s_start:
                 begin
+                    r_o_DV <= 0;
                     shift_count <= 4'd0;
                     flag_upper <= 0;
                     flag_lower <= 0;
