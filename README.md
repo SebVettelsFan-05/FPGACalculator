@@ -30,10 +30,6 @@ This is the big brain mastermind of the whole calculator, the entire calculator 
 <br>
 We can also go deeper into what each state does, and how it generates the required code for the execute stage and the ALU.
 
-## Button Hardware Layer
-
-## Seven Segment Layer
-
 ## BCD to Binary
 This BCD to Binary gets instantiated at the beginning before the always main state machine. To do this, this module takes in an "enable" signal, an input number to be converted, and a clock. This module outputs the binary representation and a output ready flag to know if the output is ready. 
 <br>
@@ -47,4 +43,9 @@ This also uses a state machine, as shown below:
 Once the output is ready, the module in main can use the result value. 
 
 ## Double Dabble (Binary to BCD)
-The double dabble algorithm takes binary to BCD. The module takes in an array to convert, a clock and an enable signal. The output is an 8 bit BCD representation of the binary input. To do this, another state machine is required. 
+The double dabble algorithm takes binary to BCD. The module takes in an array to convert, a clock and an enable signal. The output is an 8 bit BCD representation of the binary input. To do this, another state machine is required. This is shown below: 
+<br>
+<div align=center>
+<img src="Pictures/DD.png" width=450>
+</div>
+<br>
