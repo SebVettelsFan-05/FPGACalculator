@@ -24,12 +24,12 @@ Coding Conventions for this library:
 
 //AND3
 module AND3 (
-	input 	[10:0] a,
-	input	[10:0] b,
-	input	[10:0] c,
-	output  [10:0] q);
+	input 	[7:0] a,
+	input	[7:0] b,
+	input	[7:0] c,
+	output  [7:0] q);
 
-	wire p [10:0];
+	wire p [7:0];
 	p = a & b;
 	q = p & c;
 	
@@ -38,13 +38,13 @@ endmodule
 
 //AND4
 module AND4 (
-	input 	[10:0] a,
-	input 	[10:0] b,
-	input 	[10:0] c,
-	input   [10:0] d,
-	output  [10:0] q);
+	input 	[7:0] a,
+	input 	[7:0] b,
+	input 	[7:0] c,
+	input   [7:0] d,
+	output  [7:0] q);
 
-	wire p [10:0];
+	wire p [7:0];
 	AND3 inter (a, b, c, p);
 	q = d & p;
 endmodule
@@ -56,24 +56,24 @@ endmodule
 
 //OR3
 module OR3 (
-	input  [10:0] a, 
-	input  [10:0] b,
-	input  [10:0] c,	
-	output [10:0] q);
-	wire p [10:0];		 
+	input  [7:0] a, 
+	input  [7:0] b,
+	input  [7:0] c,	
+	output [7:0] q);
+	wire p [7:0];		 
 	assign q = a ^ b;
 endmodule
 
 //OR4
 module OR4 (
-	input 	[10:0] a,
-	input 	[10:0] b,
-	input 	[10:0] c,
-	input   [10:0] d,
-	output  [10:0] q);
+	input 	[7:0] a,
+	input 	[7:0] b,
+	input 	[7:0] c,
+	input   [7:0] d,
+	output  [7:0] q);
 
 
-	wire p [10:0];
+	wire p [7:0];
 	OR3 inter (a, b, c, p);
 	assign q = p ^ d;
 endmodule
@@ -83,7 +83,7 @@ endmodule
 
 
 module TristateBuffer 
-#(parameter width = 11)
+#(parameter width = 8)
 (	input 	[width-1:0] a,
 	input          s,
 	output  [width-1:0] q);
@@ -96,7 +96,7 @@ endmodule
 
 //MUX2
 module MUX2 
-(#(parameter width = 11))
+(#(parameter width = 8))
 (	input	[width-1:0] d0,
 	input 	[width-1:0] d1,
 	input		   		s,
@@ -109,7 +109,7 @@ endmodule
 
 //MUX4
 module MUX4 
-#(parameter width = 11)
+#(parameter width = 8)
 (	input	[width-1:0] d0,
 	input	[width-1:0] d1,
 	input	[width-1:0] d2,

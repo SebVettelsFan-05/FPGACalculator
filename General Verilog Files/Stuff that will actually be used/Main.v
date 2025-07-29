@@ -63,15 +63,19 @@ parameter sec_num_first_dig =    3'b100;
 parameter sec_num_sec_dig =      3'b101;
 parameter execute =              3'b110;
 parameter reset =                3'b111;
+
 //lots of numbers
 parameter all_values = 40'h9876543210;
 reg [2:0] current_case = reset;
+
 //reg, wire pair for inputs
 reg [18:0] input_buffer = 19'h00000;
 wire [18:0] inputs;
+
 //stuff for lights
 reg [3:0] lights_reg = 4'h00;
 wire [3:0] lights;
+
 //stuff for display
 reg [7:0] current_seven_seg = 8'hff;
 wire [7:0] output_seven_seg;
@@ -93,6 +97,7 @@ reg [7:0] result_first  = 8'h00;
 reg [7:0] result_second  = 8'h00;
 
 wire [7:0] w_result_f;
+wire [7:0] w_result_s;
 
 //init bcd_to_binary
 bcd_to_bin_conversion first_num(i_Clk, inputs[18:11], en_bbc_1, num_prior_one, o_dvbbc_r1);
@@ -103,10 +108,18 @@ wire[7:0] output_dd;
 reg r_en_dd = 0;
 wire en_dd;
 wire o_dvdd;
-double_dabble test(i_Clk, w_result_f, en_dd, output_dd, o_dvdd);
+double_dabble test(i_Clk, ALU_Out, en_dd, output_dd, o_dvdd);
 
 //for the for loops
 integer numpad;
+
+//ALU Instance for Integration
+wire [7:0] ALU_Out;
+ALU compute(w_result_f, w_result_s, operation_code, ALU_Out);
+
+//wire, reg pair
+wire [2:0] operation_code;
+reg [2:0] r_operation_code = 3'b000;
 
 always @(posedge i_Clk)
     begin
@@ -208,13 +221,13 @@ always @(posedge i_Clk)
                     //conversion to binary
                     r_en_bbc1 <= 1;
                     r_en_bbc2 <= 1;
+                    r_operation_code <= input_buffer[10:8];
                     if(o_dvbbc_r1)
-                        begin
-                            result_first[7:0] <= num_prior_one[7:0];
-                            r_en_dd <= 1;
-                        end
+                        result_first[7:0] <= num_prior_one[7:0];
                     if(o_dvbbc_r2)
                         result_second[7:0] <= num_prior_two[7:0];
+                    if(o_dvbbc_r1 && o_dvbbc_r2)
+                        r_en_dd <= 1;
                     if(o_dvdd)
                         current_seven_seg[7:0] <= output_dd;
                     if(reset_flag)
@@ -230,6 +243,7 @@ always @(posedge i_Clk)
                     r_en_bbc2 <=0;
                     result_first <= 12'h000;
                     result_second <= 12'h000;
+                    r_en_dd <= 0;
                 end
         endcase
     end
@@ -241,8 +255,9 @@ assign en_bbc_1 = r_en_bbc1;
 assign en_bbc_2 = r_en_bbc2;
 
 assign w_result_f = result_first;
+assign w_result_s = result_second;
 assign en_dd = r_en_dd;
-
+assign operation_code = r_operation_code;
 
 binary_to_7segment second_screen (i_Clk, current_seven_seg[3:0] ,seven_segment_2);
 binary_to_7segment first_screen (i_Clk, current_seven_seg[7:4] ,seven_segment_1);
@@ -270,6 +285,5 @@ always @(*)
         o_LED_3 = lights[2];
         o_LED_4 = lights[3];
     end
-
 
 endmodule 
