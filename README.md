@@ -1,5 +1,5 @@
 # FPGA Calculator
-An FPGA calculator that I am building from scratch with the help of the GO board, an open source LATTICE board. To do this, the calculator needs a couple of parts, namely an ALU, a layer of abstraction for the hardware, a BCD to Binary converter, and a binary  to BCD converter. Everything in this project will be done in 8-bits, as the GO board only has two seven-segment displays. Below are all the details, including diagrams of the inner workings of the calculator.
+An FPGA calculator that I am building from scratch with the help of the GO board, an open source LATTICE board. To do this, the calculator needs a couple of parts, namely an ALU, a layer of abstraction for the hardware, a BCD to Binary converter, and a binary  to BCD converter. Everything in this project will be done in 8-bits, as the GO board only has two seven-segment displays. Below are all the details, including diagrams of the inner workings of the calculator. This calculator is an 8-bit, 2 digit integer calculator, anything else is limited by the physical hardware, and maybe a bit of developer experience. 
 <br>
 <br>
 Below is a general representation of how each part of the calculator interacts with one another, and how each module is instantiated. The program revolves around the state machine "Main".
@@ -8,7 +8,19 @@ Below is a general representation of how each part of the calculator interacts w
 <img src="Pictures/Calc.png" width=500>
 </div>
 <br>
-I'll walk through each part of this system, explaining sort of what I did along the way, starting with "Main".
+To sample the operation of the calculator, here is a guide on how to use it:
+
+- When powered, you can click any of the number buttons for your desired number
+- You can then select the operation, after which the light will light up for the respective operation
+- The operations avaliable are: +, -, *. The ALU is capable of AND and OR operations, but these are not currently used
+- After inputting the numbers and operations, you can click the equals sign
+- At anytime in the process you can click the reset button which will reset everything and start from scratch
+
+A video of the operation is below:
+<br>
+<video width="640" controls>
+  <source src="pictures/FullSizeRender.MOV" type="video/quicktime">
+</video>
 
 ## Main State Machine:
 This is the big brain mastermind of the whole calculator, the entire calculator relies on this state machine to function. This state machine will take in inputs based on the condition of the buttons and generate an operational code based on these instructions. By the time this gets to the "execute" stage, the operational code is then translated, first into the BCD to binary module, then to the ALU module, then finally back to BCD via a double dabble algorithm. The state machine for "main" is shown below:

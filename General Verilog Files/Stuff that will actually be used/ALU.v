@@ -43,10 +43,28 @@ wire [7:0] and_gate;
 wire [7:0] or_gate;
 wire [7:0] adding; 
 
-assign and_gate = num1 & num2;
-assign or_gate = num1 | num2;
-assign adding = num1 + num2;
+wire [7:0] num2_n;
+
+negation NegativeSelect (num2, selector[2], num2_n);
+
+assign and_gate = num1 & num2_n;
+assign or_gate = num1 | num2_n;
+assign adding = num1 + num2_n;
 
 MUX4 instance1 (and_gate, or_gate, adding, 8'h00, selector[1:0], y);
 
 endmodule
+
+module negation
+(
+    input [7:0] a,
+    input enable,
+    output [7:0] y 
+);
+
+wire [7:0] negative;
+assign negative = (~a) + 1;
+assign y = enable ? negative : a;
+
+
+endmodule 

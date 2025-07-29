@@ -39,18 +39,24 @@ module Main
 );
 
 //set number of output ready flags and how many number buttons system have
-wire flag_ver [12:0];
-parameter num_of_buttons = 4;
+wire flag_ver [10:0];
+parameter num_of_buttons = 3;
+wire flag_ops [3:0];
+parameter num_of_operations = 2;
 
 //button initiation
-button_layer_sev_seg button_0 (i_Clk, i_Switch_1, flag_ver[0]);
-button_layer_sev_seg button_1 (i_Clk, io_PMOD_1, flag_ver[1]);
-button_layer_sev_seg button_2 (i_Clk, io_PMOD_2, flag_ver[2]);
-button_layer_sev_seg button_3 (i_Clk, io_PMOD_3, flag_ver[3]);
+button_layer_sev_seg button_0 (i_Clk, io_PMOD_1, flag_ver[0]);
+button_layer_sev_seg button_1 (i_Clk, io_PMOD_2, flag_ver[1]);
+button_layer_sev_seg button_2 (i_Clk, io_PMOD_3, flag_ver[2]);
+//button_layer_sev_seg button_3 (i_Clk, io_PMOD_3, flag_ver[3]);
+
 //equals button
 button_layer_sev_seg equals_op (i_Clk, i_Switch_4, equals_flag);
+
 //operation button init
-button_layer_sev_seg add_button (i_Clk, i_Switch_2, flag_add_op);
+button_layer_sev_seg add_button (i_Clk, i_Switch_2, flag_ops[0]);
+button_layer_sev_seg sub_button (i_Clk, i_Switch_1, flag_ops[1]);
+
 //reset button init
 button_layer_sev_seg reset_button (i_Clk, i_Switch_3, reset_flag);
 
@@ -67,6 +73,9 @@ parameter reset =                3'b111;
 //lots of numbers
 parameter all_values = 40'h9876543210;
 reg [2:0] current_case = reset;
+
+//list of operation codes
+parameter operation_values = 6'b101_001;
 
 //reg, wire pair for inputs
 reg [18:0] input_buffer = 19'h00000;
@@ -112,6 +121,7 @@ double_dabble test(i_Clk, ALU_Out, en_dd, output_dd, o_dvdd);
 
 //for the for loops
 integer numpad;
+integer numpad_ops;
 
 //ALU Instance for Integration
 wire [7:0] ALU_Out;
@@ -151,21 +161,31 @@ always @(posedge i_Clk)
                                     current_case <= first_num_sec_dig;
                                 end
                         end
-                    if(flag_add_op)
+                    for(numpad_ops = 0; numpad_ops < num_of_operations; numpad_ops = numpad_ops + 1)
                         begin
-                            input_buffer[10:8] <= 3'b001;
-                            current_case <= operation;
+                            if(flag_ops[numpad_ops])
+                                begin
+                                    input_buffer[10:8] <= operation_values[(2+3*numpad_ops) -: 3];
+                                    lights_reg [numpad_ops] <= 1;
+                                    current_case <= operation;
+                                end
+                        
                         end
+
                     if(reset_flag)
                         current_case <= reset; 
                 end
             first_num_sec_dig:
                 begin
-                    if(flag_add_op)
+                    for(numpad_ops = 0; numpad_ops < num_of_operations; numpad_ops = numpad_ops + 1)
                         begin
-                            input_buffer[10:8] <= 3'b001;
-                            current_case <= operation;
-                            lights_reg <= 4'b0001;
+                            if(flag_ops[numpad_ops])
+                                begin
+                                    input_buffer[10:8] <= operation_values[(2+3*numpad_ops) -: 3];
+                                    lights_reg [numpad_ops] <= 1;
+                                    current_case <= operation;
+                                end
+                        
                         end
                     if(reset_flag)
                         current_case <= reset; 
@@ -205,7 +225,6 @@ always @(posedge i_Clk)
                         end
                     if(reset_flag)
                         current_case <= reset;
-
                 end
             sec_num_sec_dig:
                 begin
