@@ -18,7 +18,8 @@ To sample the operation of the calculator, here is a guide on how to use it:
 
 A video of the operation is below:
 <br>
-<video src="pictures/FullSizeRender.mp4" controls title="Title"></video>
+https://github.com/user-attachments/assets/c3c05ca3-7e79-4b4b-918d-73d925a3ce3c
+
 
 ## Main State Machine:
 This is the big brain mastermind of the whole calculator, the entire calculator relies on this state machine to function. This state machine will take in inputs based on the condition of the buttons and generate an operational code based on these instructions. By the time this gets to the "execute" stage, the operational code is then translated, first into the BCD to binary module, then to the ALU module, then finally back to BCD via a double dabble algorithm. The state machine for "main" is shown below:
